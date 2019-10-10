@@ -5,7 +5,6 @@ import shutil
 class ModelManager:
     
     pathName = ''
-
     @classmethod
     def __init__(obj, dataSet = None, testSize = 0.3):
         if not obj.pathName:
