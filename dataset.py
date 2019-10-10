@@ -2,7 +2,7 @@ import collections
 import itertools
 import random
 import os
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 datasetTuple = namedtuple('datasetTuple', ['url', 'path', 'sep', 'reader_params'])
 
@@ -57,7 +57,7 @@ class DataSet:
     
     @classmethod
     def splitData(obj, ratings, testSize = 0.2):
-        train, test = collections.defaultdict(dict), collections.defaultdict(dict)
+        train, test = defaultdict(dict), defaultdict(dict)
         trainset_len = 0
         testset_len = 0
         for user, movie, rate in ratings:
