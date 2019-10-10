@@ -1,5 +1,6 @@
 import pickle
 import os
+import shutil
 
 class modelManager:
     
@@ -19,3 +20,7 @@ class modelManager:
         if not os.path.exists(self.pathName + "-%s" % name):
             raise OSError('There is no model named %s in model/ dir' % name)
         return pickle.load(open(self.path_name + "-%s" % name, "rb"))
+
+    def clearWorkspace(clean = False):
+        if clean and os.path.exists('Models'):
+            shutil.rmtree('Models')
