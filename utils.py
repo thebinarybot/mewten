@@ -18,7 +18,7 @@ class ModelManager:
     def loadModel(self, name:str):
         if not os.path.exists(self.pathName + "-%s" % name):
             raise OSError('There is no model named %s in model/ dir' % name)
-        return pickle.load(open(self.path_name + "-%s" % name, "rb"))
+        return pickle.load(open(self.pathName + "-%s" % name, "rb"))
 
     @staticmethod
     def clearWorkspace(clean = False):
