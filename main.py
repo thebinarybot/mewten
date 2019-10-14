@@ -1,12 +1,13 @@
 import utils
 from itemCF import ItemBasedCF
+from userCF import UserBasedCF
 from dataset import DataSet
 
 
 def runModel(model_name, dataset_name, testSize=0.3, clean=False):
-    print('*' * 70)
-    print('\tThis is %s model trained on %s with testSize = %.2f' % (model_name, dataset_name, testSize))
-    print('*' * 70 + '\n')
+    print('*' * 60)
+    print('This is %s model trained on %s with testSize = %.2f' % (model_name, dataset_name, testSize))
+    print('*' * 60 + '\n')
     modelManager = utils.ModelManager(dataset_name, testSize)
     try:
         trainset = modelManager.loadModel('trainset')
@@ -19,10 +20,13 @@ def runModel(model_name, dataset_name, testSize=0.3, clean=False):
 
     modelManager.clearWorkspace(clean)
     
-    model = ItemBasedCF(iufSimilarity = True)
+    if modelType == 'ItemCF':
+        model = ItemBasedCF(iufSimilarity = True)
+    elif modelType == 'UserCF':
+        model = UserBasedCF(use_iif_similarity = True)
 
     model.fit(trainset)
-    recommendTest(model, [1, 100, 233, 666, 888])
+    recommendTest(model, [1, 100, 233, 666])
     model.test(trainset)
 
 def recommendTest(model, user_list):
@@ -35,6 +39,6 @@ def recommendTest(model, user_list):
 
 if __name__ == '__main__':
     dataset_name = 'ml-100k'
-    modelType = 'ItemCF'
-    testSize = 0.1
+    modelType = 'UserCF'
+    testSize = 0.2
     runModel(modelType, dataset_name, testSize, False)
