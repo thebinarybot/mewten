@@ -1,5 +1,6 @@
 import collections
-import similarity
+import math
+import UserSimilarity
 import utils
 from operator import itemgetter
 from collections import defaultdict
@@ -16,24 +17,24 @@ class UserBasedCF:
     def fit(self, trainset):
         model_manager = utils.ModelManager()
         try:
-            self.user_sim_mat = model_manager.load_model(
+            self.user_sim_mat = model_manager.loadModel(
                 'user_sim_mat-iif' if self.use_iif_similarity else 'user_sim_mat')
-            self.movie_popular = model_manager.load_model('movie_popular')
-            self.movie_count = model_manager.load_model('movie_count')
-            self.trainset = model_manager.load_model('trainset')
+            self.movie_popular = model_manager.loadModel('movie_popular')
+            self.movie_count = model_manager.loadModel('movie_count')
+            self.trainset = model_manager.loadModel('trainset')
             print('User origin similarity model has saved before.\nLoad model success...\n')
         except OSError:
             print('No model saved before.\nTrain a new model...')
             self.user_sim_mat, self.movie_popular, self.movie_count = \
-                similarity.calculate_user_similarity(trainset=trainset,
+                UserSimilarity.calculate_user_similarity(trainset=trainset,
                                                      use_iif_similarity=self.use_iif_similarity)
             self.trainset = trainset
             print('Train a new model success.')
             if self.save_model:
-                model_manager.save_model(self.user_sim_mat,
+                model_manager.saveModel(self.user_sim_mat,
                                          'user_sim_mat-iif' if self.use_iif_similarity else 'user_sim_mat')
-                model_manager.save_model(self.movie_popular, 'movie_popular')
-                model_manager.save_model(self.movie_count, 'movie_count')
+                model_manager.saveModel(self.movie_popular, 'movie_popular')
+                model_manager.saveModel(self.movie_count, 'movie_count')
             print('The new model has saved success.\n')
 
     def recommend(self, user):
@@ -60,8 +61,13 @@ class UserBasedCF:
             raise ValueError('UserCF has not init or fit method has not called yet.')
         self.testset = testset
         print('Test recommendation system start...')
+        N = self.n_rec_movie
         hit = 0
+        rec_count = 0
+        test_count = 0
         all_rec_movies = set()
+        popular_sum = 0
+
 
         for i, user in enumerate(self.trainset):
             test_movies = self.testset.get(user, {})
@@ -70,6 +76,18 @@ class UserBasedCF:
                 if movie in test_movies:
                     hit += 1
                 all_rec_movies.add(movie)
+                popular_sum += math.log(1 + self.movie_popular[movie])
+            rec_count += N
+            test_count += len(test_movies)
+        precision = hit / (1.0 * rec_count)
+        recall = hit / (1.0 * test_count)
+        coverage = len(all_rec_movies) / (1.0 * self.movie_count)
+        popularity = popular_sum / (1.0 * rec_count)
+
+        print('Test recommendation system success.')
+
+        print('precision=%.4f\trecall=%.4f\tcoverage=%.4f\tpopularity=%.4f\n' %
+              (precision, recall, coverage, popularity))
         
     def predict(self, testset):
         movies_recommend = defaultdict(list)
