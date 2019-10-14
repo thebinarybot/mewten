@@ -36,9 +36,8 @@ def recommendTest(model, userList):
         print(recommend)
         print()
 
-
 if __name__ == '__main__':
     dataset_name = 'ml-100k'
-    modelType = 'UserCFT'
+    modelType = 'UserCF'
     testSize = 0.2
     runModel(modelType, dataset_name, testSize, False)
