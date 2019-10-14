@@ -25,7 +25,7 @@ class ItemBasedCF:
             self.trainset = modelManager.loadModel('trainset')
 
         except OSError:
-            print('No model saved before.\nTrain a new model...')
+            print('No model for the given description saved before.\nTraining a new model...')
             self.simMat, self.moviePopular, self.movieCount = \
                 ItemSimilarity.calculateItemSimilarity(trainset=trainset, iufSimilarity=self.iufSimilarity)
             self.trainset = trainset
@@ -47,10 +47,10 @@ class ItemBasedCF:
             return
         watchedMovies = self.trainset[user]
         for movie, rating in watchedMovies.items():
-            for related_movie, similarity_factor in sorted(self.simMat[movie].items(), key=itemgetter(1), reverse=True)[0:K]:
-                if related_movie in watchedMovies:
+            for relatedMovie, similarityFactor in sorted(self.simMat[movie].items(), key=itemgetter(1), reverse=True)[0:K]:
+                if relatedMovie in watchedMovies:
                     continue
-                predictScore[related_movie] += similarity_factor * rating
+                predictScore[relatedMovie] += similarityFactor * rating
         return [movie for movie, _ in sorted(predictScore.items(), key=itemgetter(1), reverse=True)[0:N]]
 
     def test(self, testset):
@@ -85,13 +85,9 @@ class ItemBasedCF:
         print('Precision=%.4f\tRecall=%.4f\tCoverage=%.4f\tPopularity=%.4f\n' % (precision, recall, coverage, popularity))
 
     def predict(self, testset):
-        movies_recommend = defaultdict(list)
+        moviesRecommend = defaultdict(list)
         print('Predict scores start...')
-        predict_time = LogTime(print_step=500)
         for i, user in enumerate(testset):
             recMovies = self.recommend(user)  
-            movies_recommend[user].append(recMovies)
-            predict_time.count_time()
-        print('Predict scores success.')
-        predict_time.finish()
-        return movies_recommend
+            moviesRecommend[user].append(recMovies)
+        return moviesRecommend
